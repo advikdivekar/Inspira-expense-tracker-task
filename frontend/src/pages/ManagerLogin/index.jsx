@@ -1,220 +1,288 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import FormInput from "../../components/FormInput";
+import Button from "../../components/Button";
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Epilogue:ital,wght@0,300;0,400;0,500;1,300&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .login-root {
-    min-height: 100vh;
-    background: #0f0f0f;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    font-family: 'DM Mono', monospace;
+  :root {
+    --bg: #f5f2ed;
+    --surface: #ffffff;
+    --border: #e2ddd6;
+    --text: #1a1814;
+    --text-muted: #8a8278;
+    --accent: #2d5a3d;
+    --accent-light: #e8f0eb;
+    --danger: #8b2020;
+    --danger-light: #f5e8e8;
+    --warning: #7a5c1e;
+    --warning-light: #fdf3e0;
+    --mono: 'Epilogue', sans-serif;
+    --display: 'Syne', sans-serif;
   }
 
-  .login-left {
-    background: #0f0f0f;
+  body { background: var(--bg); }
+
+  .ml-root {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-family: var(--mono);
+    color: var(--text);
+  }
+
+  /* ── Left panel ─────────────────────────────────── */
+  .ml-left {
+    background: var(--text);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 3rem;
-    border-right: 1px solid #1e1e1e;
+    padding: 2.5rem 3rem;
     position: relative;
     overflow: hidden;
   }
 
-  .login-left::before {
+  /* subtle texture lines */
+  .ml-left::before {
     content: '';
     position: absolute;
-    top: -200px;
-    left: -200px;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(212,163,78,0.08) 0%, transparent 70%);
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 47px,
+        rgba(255,255,255,0.03) 47px,
+        rgba(255,255,255,0.03) 48px
+      );
     pointer-events: none;
   }
 
-  .brand {
+  /* accent corner block */
+  .ml-left::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 180px;
+    height: 180px;
+    background: var(--accent);
+    opacity: 0.18;
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    pointer-events: none;
+  }
+
+  .ml-brand {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.2rem;
+    position: relative;
+    z-index: 1;
   }
 
-  .brand-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: #444;
+  .ml-brand-eyebrow {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
+    color: var(--text-muted);
   }
 
-  .brand-name {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.5rem;
-    color: #e8e8e8;
+  .ml-brand-name {
+    font-family: var(--display);
+    font-size: 1.25rem;
+    font-weight: 700;
     letter-spacing: -0.02em;
+    color: var(--bg);
   }
 
-  .login-hero {
+  .ml-hero {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 2rem 0;
+    padding: 3rem 0;
+    position: relative;
+    z-index: 1;
   }
 
-  .hero-eyebrow {
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
-    color: #c4963a;
+  .ml-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    margin-bottom: 1.5rem;
+    color: var(--accent-light);
+    margin-bottom: 1.75rem;
   }
 
-  .hero-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.5rem, 4vw, 3.5rem);
-    color: #e8e8e8;
-    line-height: 1.1;
+  .ml-hero-tag::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .ml-hero-title {
+    font-family: var(--display);
+    font-size: clamp(2.2rem, 3.5vw, 3.25rem);
+    font-weight: 700;
+    color: var(--bg);
+    line-height: 1.08;
     letter-spacing: -0.03em;
     margin-bottom: 1.5rem;
   }
 
-  .hero-title em {
+  .ml-hero-title em {
     font-style: italic;
-    color: #c4963a;
+    font-weight: 400;
+    color: var(--accent-light);
+    opacity: 0.85;
   }
 
-  .hero-desc {
+  .ml-hero-desc {
     font-size: 0.8rem;
-    color: #555;
-    line-height: 1.8;
-    max-width: 340px;
-    letter-spacing: 0.02em;
+    color: var(--text-muted);
+    line-height: 1.85;
+    max-width: 320px;
+    letter-spacing: 0.01em;
   }
 
-  .login-footer-text {
-    font-size: 0.65rem;
-    color: #2a2a2a;
-    letter-spacing: 0.1em;
+  .ml-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    z-index: 1;
   }
 
-  .login-right {
-    background: #0a0a0a;
+  .ml-stat-num {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--bg);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .ml-stat-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .ml-footer {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.1);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Right panel ─────────────────────────────────── */
+  .ml-right {
+    background: var(--bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3rem;
+    padding: 3rem 2.5rem;
   }
 
-  .login-card {
+  .ml-card {
     width: 100%;
-    max-width: 380px;
-    animation: fadeUp 0.5s ease both;
+    max-width: 400px;
+    animation: ml-fadeUp 0.45s ease both;
   }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
+  @keyframes ml-fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  .card-header {
-    margin-bottom: 2.5rem;
+  .ml-card-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
   }
 
-  .card-eyebrow {
-    font-size: 0.65rem;
+  .ml-card-top {
+    padding: 1.75rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ml-card-eyebrow {
+    font-size: 0.6rem;
     letter-spacing: 0.2em;
-    color: #333;
     text-transform: uppercase;
-    margin-bottom: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
   }
 
-  .card-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2rem;
-    color: #e8e8e8;
+  .ml-card-title {
+    font-family: var(--display);
+    font-size: 1.6rem;
+    font-weight: 700;
     letter-spacing: -0.03em;
+    line-height: 1.1;
   }
 
-  .form-group {
-    margin-bottom: 1.25rem;
+  .ml-card-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+    line-height: 1.6;
   }
 
-  .form-label {
-    display: block;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    color: #444;
-    text-transform: uppercase;
-    margin-bottom: 0.6rem;
+  .ml-card-body {
+    padding: 1.75rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  .form-input {
-    width: 100%;
-    background: #111;
-    border: 1px solid #1e1e1e;
-    color: #e8e8e8;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    padding: 0.85rem 1rem;
-    outline: none;
-    transition: border-color 0.2s;
-    letter-spacing: 0.03em;
+  .ml-error {
+    background: var(--danger-light);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-size: 0.72rem;
+    padding: 0.65rem 0.9rem;
+    line-height: 1.5;
   }
 
-  .form-input:focus {
-    border-color: #c4963a;
+  .ml-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.25rem 0;
   }
 
-  .form-input::placeholder {
-    color: #2a2a2a;
+  .ml-back {
+    text-align: center;
+    margin-top: 1.25rem;
   }
 
-  .error-msg {
-    background: rgba(220, 60, 60, 0.08);
-    border: 1px solid rgba(220, 60, 60, 0.2);
-    color: #e05555;
-    font-size: 0.75rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1.25rem;
-    letter-spacing: 0.03em;
+  .ml-back-link {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: color 0.15s;
   }
 
-  .submit-btn {
-    width: 100%;
-    background: #c4963a;
-    color: #0a0a0a;
-    border: none;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 1rem;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    margin-top: 0.5rem;
-  }
-
-  .submit-btn:hover:not(:disabled) {
-    background: #d4a84a;
-  }
-
-  .submit-btn:active:not(:disabled) {
-    transform: scale(0.99);
-  }
-
-  .submit-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  .ml-back-link:hover { color: var(--text); }
 
   @media (max-width: 768px) {
-    .login-root { grid-template-columns: 1fr; }
-    .login-left { display: none; }
+    .ml-root { grid-template-columns: 1fr; }
+    .ml-left  { display: none; }
+    .ml-right { padding: 2rem 1.25rem; align-items: flex-start; padding-top: 3rem; }
   }
 `;
 
@@ -247,68 +315,97 @@ const ManagerLogin = () => {
   return (
     <>
       <style>{styles}</style>
-      <div className="login-root">
-        <div className="login-left">
-          <div className="brand">
-            <span className="brand-label">System</span>
-            <span className="brand-name">ExpenseTracker</span>
+      <div className="ml-root">
+
+        {/* ── Left editorial panel ── */}
+        <div className="ml-left">
+          <div className="ml-brand">
+            <span className="ml-brand-eyebrow">Internal System</span>
+            <span className="ml-brand-name">ExpenseTracker</span>
           </div>
-          <div className="login-hero">
-            <p className="hero-eyebrow">Manager Portal</p>
-            <h1 className="hero-title">Review & <em>decide</em> with clarity.</h1>
-            <p className="hero-desc">
-              A single place to see every pending expense, understand the reasoning,
-              and approve or reject with a clear audit trail.
+
+          <div className="ml-hero">
+            <span className="ml-hero-tag">Manager Portal</span>
+            <h1 className="ml-hero-title">
+              Review &amp; <em>decide</em><br />with clarity.
+            </h1>
+            <p className="ml-hero-desc">
+              A single place to see every pending expense, understand
+              the reasoning behind each request, and approve or reject
+              with a clear audit trail.
             </p>
+
+            <div className="ml-stats">
+              <div>
+                <div className="ml-stat-num">∞</div>
+                <div className="ml-stat-label">Submissions tracked</div>
+              </div>
+              <div>
+                <div className="ml-stat-num">1</div>
+                <div className="ml-stat-label">Review queue</div>
+              </div>
+              <div>
+                <div className="ml-stat-num">0s</div>
+                <div className="ml-stat-label">Decision latency</div>
+              </div>
+            </div>
           </div>
-          <p className="login-footer-text">INTERNAL USE ONLY &mdash; AUTHORISED PERSONNEL</p>
+
+          <p className="ml-footer">Internal use only &mdash; authorised personnel</p>
         </div>
 
-        <div className="login-right">
-          <div className="login-card">
-            <div className="card-header">
-              <p className="card-eyebrow">Secure access</p>
-              <h2 className="card-title">Sign in</h2>
+        {/* ── Right login panel ── */}
+        <div className="ml-right">
+          <div className="ml-card">
+            <div className="ml-card-panel">
+              <div className="ml-card-top">
+                <p className="ml-card-eyebrow">Secure access</p>
+                <h2 className="ml-card-title">Sign in</h2>
+                <p className="ml-card-sub">Manager credentials required to continue.</p>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div className="ml-card-body">
+                  {error && <div className="ml-error">{error}</div>}
+
+                  <FormInput
+                    label="Username"
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={form.username}
+                    onChange={handleChange}
+                    placeholder="admin"
+                    required
+                    autoFocus
+                  />
+
+                  <FormInput
+                    label="Password"
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    required
+                  />
+
+                  <div className="ml-divider" />
+
+                  <Button variant="primary" fullWidth type="submit" disabled={loading}>
+                    {loading ? "Authenticating…" : "Access Dashboard →"}
+                  </Button>
+                </div>
+              </form>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              {error && <div className="error-msg">{error}</div>}
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="username">Username</label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  className="form-input"
-                  placeholder="admin"
-                  value={form.username}
-                  onChange={handleChange}
-                  required
-                  autoFocus
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  className="form-input"
-                  placeholder="••••••••"
-                  value={form.password}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <button type="submit" className="submit-btn" disabled={loading}>
-                {loading ? "Authenticating..." : "Access Dashboard →"}
-              </button>
-            </form>
+            <div className="ml-back">
+              <a href="/" className="ml-back-link">← Back to employee portal</a>
+            </div>
           </div>
         </div>
+
       </div>
     </>
   );
