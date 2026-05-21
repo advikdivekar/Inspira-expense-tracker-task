@@ -227,3 +227,54 @@ curl http://localhost:8000/health
 - [x] Phase 2 — FastAPI backend with full CRUD
 - [x] Phase 3 — React frontend with Vite + TailwindCSS
 - [x] Phase 4 — Manager authentication + Employee/Manager views + Notifications
+
+---
+
+## Learning Notes
+
+Hand-written planning notes taken while understanding the project requirements and designing the architecture before writing any code.
+
+### Note 1 — Phase 4 Planning: Auth & Categories
+![Phase 4 notes — role-based auth and categories design](notes/notes1.JPG)
+
+> Decided against OAuth, went with role-based access control (RBAC) using JWT.
+> Manager account represents the admin — no separate auth model needed.
+> Pydantic handles all input validation so no manual type checks in service logic.
+> Predefined categories seeded into DB at deploy time, not hardcoded on the frontend — keeps the UI dynamic.
+
+---
+
+### Note 2 — API Design: Update & Delete Behaviour
+![API design notes — update and delete rules](notes/notes2.JPG)
+
+> `GET` / `UPDATE` endpoints return full info for both employees and managers.
+> Expense fields excluded from `PATCH` — only employee/manager profile details are updatable.
+> `DELETE` only allowed for employee and manager records.
+> Key decision: if an expense is deleted, associated employee records should also cascade delete — so expenses are not exposed as a standalone delete option.
+
+---
+
+### Note 3 — Endpoint Design: HTTP Methods & Payloads
+![Endpoint design — GET and POST payload structure](notes/notes3.JPG)
+
+> All endpoints use `application/json` as the media type.
+> `GET` flow: employee details → JSON → expense info → manager details.
+> `POST` flow: two sets of details (employee + manager) → expense submission with reason → manager uses reason field to reject expenses.
+
+---
+
+### Note 4 — Backend Architecture: FastAPI Structure
+![Backend architecture — FastAPI, routers, services, schemas](notes/notes4.JPG)
+
+> FastAPI app exposes `/health` and `/docs` from `main.py`.
+> Three layers per feature: **schemas** (Pydantic validation), **services** (business logic), **routers** (HTTP layer, all registered in `main.py`).
+> Manager flow: logs in → views expense records per employee → accepts or rejects → employee gets notified.
+> Routers hold all endpoints, call into services, and are mounted in `main.py` with a path prefix.
+
+---
+
+### Note 5 — Docker Structure
+![Docker setup notes — Dockerfiles and .dockerignore per service](notes/notes5.JPG)
+
+> Each service (backend, frontend) has its own `Dockerfile` and `.dockerignore`.
+> Root-level `docker-compose.yml` orchestrates both builds — `/frontend` and `/backend` — into a single `docker compose up` command.
