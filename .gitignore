@@ -1,1 +1,17 @@
 .env 
+.DS_Store
+node_modules/
+dist/
+coverage/
+logs/
+*.log
+*.tmp
+*.bak
+.vscode/
+
+# Ignore Python bytecode and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
