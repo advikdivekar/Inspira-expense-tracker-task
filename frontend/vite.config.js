@@ -10,7 +10,7 @@ export default defineConfig({
       // in dev, any request to /api gets forwarded to the backend container
       // this means no CORS issues during development
       "/api": {
-        target: "http://backend:8000",
+        target: "http://localhost:8000",
         changeOrigin: true,
       },
     },
