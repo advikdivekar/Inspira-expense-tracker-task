@@ -9,6 +9,7 @@ alembic==1.13.3                    # migrations
 
 # Validation & Settings 
 pydantic==2.9.2                    # data validation (FastAPI uses this internally too)
+pydantic[email]==2.9.2             # EmailStr support
 pydantic-settings==2.5.2           # BaseSettings for reading .env into typed config
 
 # Auth 
