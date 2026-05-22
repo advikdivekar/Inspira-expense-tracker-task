@@ -24,3 +24,4 @@ class User(Base):
 
     # one user can have many notifications
     notifications: Mapped[list["Notification"]] = relationship("Notification", back_populates="user")
+    
