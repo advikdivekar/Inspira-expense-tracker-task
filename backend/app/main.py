@@ -17,17 +17,9 @@ app = FastAPI(
 )
 
 
-# CORS — allows the React frontend origin to talk to this API
-# in production replace "*" with your actual frontend domain
-ALLOWED_ORIGINS = [
-    "http://localhost:5173",   # Vite dev server
-    "http://localhost:80",     # nginx in prod
-    "http://localhost",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

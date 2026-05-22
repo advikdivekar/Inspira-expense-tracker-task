@@ -1,27 +1,41 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    # Database 
+    # Database
     DB_USER: str
     DB_PASSWORD: str
     DB_NAME: str
-    DB_HOST: str = "db"        # "db" matches the docker-compose service name
+    DB_HOST: str = "db"
     DB_PORT: int = 5432
 
-    # Admin credentials (hardcoded login)
+    # Admin credentials
     ADMIN_USERNAME: str
-    ADMIN_PASSWORD: str        # plain text in .env, compared against hash at runtime
+    ADMIN_PASSWORD: str
 
-    # JWT 
+    # JWT
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 8    # 8 hours — full workday session
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 8
 
-    # App 
+    # App
     ENVIRONMENT: str = "development"
 
-    # Assembled from individual parts so each piece stays independently readable
+    # CORS — comma-separated origins, e.g. "https://app.vercel.app,http://localhost:5173"
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:5173",
+        "http://localhost:80",
+        "http://localhost",
+    ]
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def parse_origins(cls, v: str | list) -> list[str]:
+        if isinstance(v, str):
+            return [o.strip() for o in v.split(",") if o.strip()]
+        return v
+
     @property
     def DATABASE_URL(self) -> str:
         return (
@@ -30,9 +44,9 @@ class Settings(BaseSettings):
         )
 
     model_config = SettingsConfigDict(
-        env_file=".env",           # loads .env automatically when running locally
+        env_file=".env",
         env_file_encoding="utf-8",
-        case_sensitive=True,       # DB_USER ≠ db_user — be explicit
+        case_sensitive=True,
     )
 
 
