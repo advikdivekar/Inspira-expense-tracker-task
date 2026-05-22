@@ -9,7 +9,7 @@ from app.config import settings
 from app.database import SessionLocal
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 
 def get_db() -> Generator[Session, None, None]:
